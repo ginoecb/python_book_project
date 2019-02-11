@@ -2,7 +2,6 @@ import numpy as np
 import sys
 from PIL import Image
 
-""" FUNCTIONS """
 def get_image(img_name, height, num_pages):
     ''' Retrieves specified image as a 2D array of greyscale pixels '''
     img = Image.open(img_name)
@@ -44,6 +43,7 @@ def get_page_cuts(arr, tolerance):
     return cuts
 
 def main():
+    ''' Calculates book measurements, saves Instructions and Resized image '''
     img_name = input("Enter filename of image\n"
                      "This image should be black-and-white only\n> ")
     height = get_num("Enter page height in inches\n> ", 0, sys.maxsize)
