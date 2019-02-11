@@ -1,19 +1,17 @@
 import numpy as np
-import scipy as sp
-import scipy.ndimage as nd
-import math
+import sys
 from PIL import Image
 
 """ FUNCTIONS """
-def get_image():
+def get_image(img_name, height, num_pages):
     ''' Retrieves specified image as a 2D array of greyscale pixels '''
-    img_name = input("Enter filename of image\n"
-                     "This image should be black-and-white only\n")
     img = Image.open(img_name)
-    img_la = img.convert('L')
+    img_resized = img.resize((int(num_pages), int(height)), Image.NEAREST)
+    img_resized.save(img_name[:-4] + "_resized" + img_name[-4:])
+    img_la = img_resized.convert('L')
     arr = np.asarray(img_la)
     arr_rotated = np.transpose(arr)
-    return arr
+    return arr_rotated
 
 def get_num(message_str, min_int, max_int):
     ''' Get a restricted numerical input from the user '''
@@ -30,18 +28,8 @@ def get_num(message_str, min_int, max_int):
             print("ERROR: Input must be a number\n")
     return num
 
-def get_book_data():
-    img_data = get_image()
-    height = get_num("Enter book height in inches\n")
-    width = get_num("Enter book width in inches\n")
-    num_pages = get_num("Enter number of pages in book\n")
-    tolerance = get_num("Input a tolerance-threshold (0 - 255)\n"
-                      "All values below this will not be considered part of the image\n")
-    for i in img_data:
-        print("Page " + i)
-        get_page_cuts(img_data[1], tolerance)
-
 def get_page_cuts(arr, tolerance):
+    ''' Determine cut distance(s) for a given page '''
     start = -1
     stop = -1
     cuts_list = []
@@ -59,20 +47,58 @@ def get_page_cuts(arr, tolerance):
             cut = []
             start = -1
         i += 1
+    # If the entire page
+
     return cuts_list
 
+def main():
+    img_name = input("Enter filename of image\n"
+                     "This image should be black-and-white only\n> ")
+    height = get_num("Enter page height in inches\n> ", 0, sys.maxsize)
+    num_pages = get_num("Enter number of pages in book\n> ", 0, sys.maxsize)
+    tolerance = get_num("Input a tolerance-threshold (0 - 255)\n> "
+                      "All values below this will not be considered part of the image\n> ", 0, 255)
+    # 1 in : 96 px
+    px_height = height * 96
+    img_data = get_image(img_name, px_height, num_pages)
+    outfile = open(img_name[:-4] + "_cut_instr.txt", "w")
+    i = 0
+    """for col in img_data:
+        output = ""
+        outstr = "Page " + str(i) + "\n"
+        print(outstr)
+        output += outstrx   
+        cuts = get_page_cuts(img_data[1], tolerance)
+        for cut in cuts:
+            outstr = "Cut from " + str(cut[0] / px_height * height)\
+                     + " in to " + str(cut[1] / px_height * height) + " in\n"
+            print(outstr)
+            output += outstr
+        outfile.write(output)
+        i += 1
+    outfile.close()"""
+    cuts = get_page_cuts(img_data[1], tolerance)
+    print(cuts)
+    for cut in cuts:
+        print("From " + str(cut[0]) + " to " + str(cut[1]))
 
+#main()
 
-"""
-testarr = get_image()
+img = Image.open("testmat.png")
+print(img.size)
+img = img.convert('L')
+arr = np.asarray(img)
+#print(arr[0])
+#arr = np.transpose(arr)
+#print(arr[0])
 i = 0
-while i < len(testarr):
-    print(testarr[i])
+for col in arr:
+    print(get_page_cuts(arr[i], 10))
     i += 1
-"""
 
-"""
-print(len(arr[0]))          # height
-print(len(arr[0][0]))       # width
-print(len(arr[0][0][0]))    # RGB fields
-"""
+'''
+cuts = [9, 0, 9, 9, 9, 9, 9, 9, 0, 0, 0, 9, 9, 0]
+cuts = get_page_cuts(cuts, 4)
+for cut in cuts:
+    print("From " + str(cut[0]) + " to " + str(cut[1]))
+'''
