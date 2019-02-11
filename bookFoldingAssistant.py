@@ -27,7 +27,7 @@ def get_num(message_str, min_int, max_int):
             print("ERROR: Input must be a number\n")
     return num
 
-def get_page_cuts(arr, tolerance):
+def get_page_cuts(arr, min_cut_len, tolerance, px_height, height):
     ''' Determine cut distance(s) for a given page '''
     start_cut = True
     cuts = []
@@ -38,9 +38,21 @@ def get_page_cuts(arr, tolerance):
         elif elt >= tolerance and not start_cut:
             cuts.append(idx)
             start_cut = True
+            cuts = check_page_cuts(cuts, min_cut_len, px_height, height)
     if not start_cut:
         cuts.append(len(arr))
     return cuts
+
+def check_page_cuts(cuts, min_cut_len, px_height, height):
+    ''' Removes cut instructions if less than minimum cut length '''
+    end = len(cuts) - 1
+    if get_height(cuts[end] - cuts[end - 1], px_height, height) < min_cut_len:
+        cuts = cuts[:-2]
+    return cuts
+
+def get_height(num, px_height, height):
+    ''' Converts from pixel to inches '''
+    return round(num / px_height * height, 4)
 
 def main():
     ''' Calculates book measurements, saves Instructions and Resized image '''
@@ -50,8 +62,9 @@ def main():
     num_pages = get_num("Enter number of pages in book\n"
                         "Numbered pages (with different numbers on front and back) will count as a signle page\n"
                         "Be sure to include non-numbered pages\n> ", 0, sys.maxsize)
-    offset_front = get_num("Enter number of pages to offset image from the front cover\n>", 0, num_pages)
-    offset_back = get_num("Enter number of pages to offset image from the back cover\n>", 0, num_pages)
+    offset_front = get_num("Enter number of pages to offset image from the front cover\n> ", 0, num_pages)
+    offset_back = get_num("Enter number of pages to offset image from the back cover\n> ", 0, num_pages)
+    min_cut_len = get_num("Enter the minimum cut length in inches for each page\n> ", 0, height)
     tolerance = get_num("Input a tolerance-threshold (0 - 255)\n"
                       "All values above this will not be considered part of the image\n> ", 0, 255)
     width = num_pages - offset_front - offset_back
@@ -61,16 +74,20 @@ def main():
     outfile = open(img_name[:-4] + "_cut_instr.txt", "w")
     output = ""
     for idx, elt in enumerate(img_data):
-        output += "Page " + str(idx + 1 + offset_front) + "\n"
-        cuts = get_page_cuts(img_data[idx], tolerance)
+        output += "\nPage " + str(int(idx + 1 + offset_front)) + "\n"
+        cuts = get_page_cuts(img_data[idx], min_cut_len, tolerance, px_height, height)
         start_cut = True
+        no_instr = True
         for num in cuts:
             if start_cut:
-                output += "Cut from " + str(round(num / px_height * height, 4)) + " in "
+                no_instr = False
+                output += "Cut from " + str(get_height(num, px_height, height)) + " in "
                 start_cut = False
             else:
-                output += "to " + str(round(num / px_height * height, 4)) + " in\n"
+                output += "to " + str(get_height(num, px_height, height)) + " in\n"
                 start_cut = True
+        if no_instr:
+            output += "None\n"
     print(output)
     outfile.write(output)
     outfile.close()
