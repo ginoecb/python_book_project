@@ -30,75 +30,48 @@ def get_num(message_str, min_int, max_int):
 
 def get_page_cuts(arr, tolerance):
     ''' Determine cut distance(s) for a given page '''
-    start = -1
-    stop = -1
-    cuts_list = []
-    cut = []
-    i = 0
-    for elt in arr:
-        if elt >= tolerance and start == -1:
-            start = i
-            cut.append(start)
-            stop = -1
-        elif elt < tolerance and start != -1 and stop == -1:
-            stop = i
-            cut.append(stop)
-            cuts_list.append(cut)
-            cut = []
-            start = -1
-        i += 1
-    # If the entire page
-
-    return cuts_list
+    start_cut = True
+    cuts = []
+    for idx, elt in enumerate(arr):
+        if elt < tolerance and start_cut:
+            cuts.append(idx)
+            start_cut = False
+        elif elt >= tolerance and not start_cut:
+            cuts.append(idx)
+            start_cut = True
+    if not start_cut:
+        cuts.append(len(arr))
+    return cuts
 
 def main():
     img_name = input("Enter filename of image\n"
                      "This image should be black-and-white only\n> ")
     height = get_num("Enter page height in inches\n> ", 0, sys.maxsize)
-    num_pages = get_num("Enter number of pages in book\n> ", 0, sys.maxsize)
+    num_pages = get_num("Enter number of pages in book\n"
+                        "This includes pages without numbers\n> ", 0, sys.maxsize)
+    offset_front = get_num("Enter number of pages to offset from the front cover\n>", 0, num_pages)
+    offset_back = get_num("Enter number of pages to offset from the back cover\n>", 0, num_pages)
     tolerance = get_num("Input a tolerance-threshold (0 - 255)\n> "
                       "All values below this will not be considered part of the image\n> ", 0, 255)
+    width = num_pages - offset_front - offset_back
     # 1 in : 96 px
     px_height = height * 96
-    img_data = get_image(img_name, px_height, num_pages)
+    img_data = get_image(img_name, px_height, width)
     outfile = open(img_name[:-4] + "_cut_instr.txt", "w")
-    i = 0
-    """for col in img_data:
-        output = ""
-        outstr = "Page " + str(i) + "\n"
-        print(outstr)
-        output += outstrx   
-        cuts = get_page_cuts(img_data[1], tolerance)
-        for cut in cuts:
-            outstr = "Cut from " + str(cut[0] / px_height * height)\
-                     + " in to " + str(cut[1] / px_height * height) + " in\n"
-            print(outstr)
-            output += outstr
-        outfile.write(output)
-        i += 1
-    outfile.close()"""
-    cuts = get_page_cuts(img_data[1], tolerance)
-    print(cuts)
-    for cut in cuts:
-        print("From " + str(cut[0]) + " to " + str(cut[1]))
+    output = ""
+    for idx, elt in enumerate(img_data):
+        output += "Page " + str(idx + 1) + "\n"
+        cuts = get_page_cuts(img_data[idx], tolerance)
+        start_cut = True
+        for num in cuts:
+            if start_cut:
+                output += "Cut from " + str(num / px_height * height) + " in "
+                start_cut = False
+            else:
+                output += "to " + str(num / px_height * height) + " in\n"
+                start_cut = True
+    print(output)
+    outfile.write(output)
+    outfile.close()
 
-#main()
-
-img = Image.open("testmat.png")
-print(img.size)
-img = img.convert('L')
-arr = np.asarray(img)
-#print(arr[0])
-#arr = np.transpose(arr)
-#print(arr[0])
-i = 0
-for col in arr:
-    print(get_page_cuts(arr[i], 10))
-    i += 1
-
-'''
-cuts = [9, 0, 9, 9, 9, 9, 9, 9, 0, 0, 0, 9, 9, 0]
-cuts = get_page_cuts(cuts, 4)
-for cut in cuts:
-    print("From " + str(cut[0]) + " to " + str(cut[1]))
-'''
+main()
