@@ -2,7 +2,7 @@
 *bookFoldingAssistant.py* is used for Book Folding Art projects.
 With this program, you can generate instructions for any image you would like to use.
 Simply place a black and white image of the design you would like to fold into the book into the same directory as 
-*bookFoldingAssistant.py*, take the required measurements listed below, and run the program.
+*bookFoldingAssistant.py*, take the required measurements listed below, and run the program. You will now have instructions for the lengths of the page which should be cut and folded to produce your desired design.
 
 Run this with
 ```
@@ -28,3 +28,6 @@ To use this, you will need to provide:
 Running the program will output the following:
 - Cutting instructions, which are printed to the terminal and also saved as *filename_cut_instr.txt*
 - A resized version of the original image, scaled to the dimensions of the book, which is saved as *filename_resized.png*
+
+# Coming Soon #
+- An option for generating instructions that involve folding only, no cutting
