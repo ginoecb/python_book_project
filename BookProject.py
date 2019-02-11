@@ -48,11 +48,12 @@ def main():
                      "This image should be black-and-white only\n> ")
     height = get_num("Enter page height in inches\n> ", 0, sys.maxsize)
     num_pages = get_num("Enter number of pages in book\n"
-                        "This includes pages without numbers\n> ", 0, sys.maxsize)
-    offset_front = get_num("Enter number of pages to offset from the front cover\n>", 0, num_pages)
-    offset_back = get_num("Enter number of pages to offset from the back cover\n>", 0, num_pages)
-    tolerance = get_num("Input a tolerance-threshold (0 - 255)\n> "
-                      "All values below this will not be considered part of the image\n> ", 0, 255)
+                        "Numbered pages (with different numbers on front and back) will count as a signle page\n"
+                        "Be sure to include non-numbered pages\n> ", 0, sys.maxsize)
+    offset_front = get_num("Enter number of pages to offset image from the front cover\n>", 0, num_pages)
+    offset_back = get_num("Enter number of pages to offset image from the back cover\n>", 0, num_pages)
+    tolerance = get_num("Input a tolerance-threshold (0 - 255)\n"
+                      "All values above this will not be considered part of the image\n> ", 0, 255)
     width = num_pages - offset_front - offset_back
     # 1 in : 96 px
     px_height = height * 96
@@ -60,15 +61,15 @@ def main():
     outfile = open(img_name[:-4] + "_cut_instr.txt", "w")
     output = ""
     for idx, elt in enumerate(img_data):
-        output += "Page " + str(idx + 1) + "\n"
+        output += "Page " + str(idx + 1 + offset_front) + "\n"
         cuts = get_page_cuts(img_data[idx], tolerance)
         start_cut = True
         for num in cuts:
             if start_cut:
-                output += "Cut from " + str(num / px_height * height) + " in "
+                output += "Cut from " + str(round(num / px_height * height, 4)) + " in "
                 start_cut = False
             else:
-                output += "to " + str(num / px_height * height) + " in\n"
+                output += "to " + str(round(num / px_height * height, 4)) + " in\n"
                 start_cut = True
     print(output)
     outfile.write(output)
