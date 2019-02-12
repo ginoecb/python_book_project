@@ -56,17 +56,27 @@ def get_height(num, px_height, height):
 
 def main():
     ''' Calculates book measurements, saves Instructions and Resized image '''
-    img_name = input("Enter filename of image\n"
-                     "This image should be black-and-white only\n> ")
-    height = get_num("Enter page height in inches\n> ", 0, sys.maxsize)
-    num_pages = get_num("Enter number of pages in book\n"
-                        "Numbered pages (with different numbers on front and back) will count as a signle page\n"
-                        "Be sure to include non-numbered pages\n> ", 0, sys.maxsize)
-    offset_front = get_num("Enter number of pages to offset image from the front cover\n> ", 0, num_pages)
-    offset_back = get_num("Enter number of pages to offset image from the back cover\n> ", 0, num_pages)
-    min_cut_len = get_num("Enter the minimum cut length in inches for each page\n> ", 0, height)
-    tolerance = get_num("Input a tolerance-threshold (0 - 255)\n"
-                      "All values above this will not be considered part of the image\n> ", 0, 255)
+    while True:
+        img_name = input("Enter filename of image\n"
+                         "This image should be black-and-white only\n> ")
+        height = get_num("Enter page height in inches\n> ", 0, sys.maxsize)
+        num_pages = get_num("Enter number of pages in book\n"
+                            "Numbered pages (with different numbers on front and back) will count as a signle page\n"
+                            "Be sure to include non-numbered pages\n> ", 0, sys.maxsize)
+        offset_front = get_num("Enter number of pages to offset image from the front cover\n> ", 0, num_pages)
+        offset_back = get_num("Enter number of pages to offset image from the back cover\n> ", 0, num_pages)
+        min_cut_len = get_num("Enter the minimum cut length in inches for each page\n> ", 0, height)
+        tolerance = get_num("Input a black-white tolerance threshold (0 - 255)\n"
+                          "All values above this will not be considered part of the image\n> ", 0, 255)
+        # Display image for confirmation
+        img_show = Image.open(img_name[:-4] + "_resized" + img_name[-4:])
+        img_show.show()
+        confirm = input("This image will be applied for generating instructions\n"
+                        "Are you satisfied with this pattern?\n"
+                        "Type 'yes' to confirm, anything else to re-enter\n> ")
+        img_show.close()
+        if confirm.lower() == 'yes':
+            break
     width = num_pages - offset_front - offset_back
     # 1 in : 96 px
     px_height = height * 96
