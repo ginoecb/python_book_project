@@ -8,9 +8,13 @@ Run this with
 ```
 python3 bookFoldingAssistant.py
 ```
-Do note you will need to have *numpy* and either *PIL* or *Pillow* to use this program.
 
-# Requirements #
+# Required Modules #
+
+- *numpy*
+- *PIL* or *Pillow*
+
+# Inputs #
 To use this, you will need to provide:
 - A black and white image of the desired design
 - The height of the book in inches
@@ -19,6 +23,7 @@ To use this, you will need to provide:
      - Be sure to count non-numbered pages in both the front and back of the book
 - The number of pages to offset the design from the front cover
 - The number of pages to offset the design from the back cover
+- Minimum cut length in inches
 - A tolerance value (from 0 to 255)
      - Black pixels have a value of 0
      - White pixels have a value of 255
