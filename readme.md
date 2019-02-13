@@ -14,7 +14,7 @@ python3 bookFoldingAssistant.py
 - *numpy*
 - *PIL* or *Pillow*
 
-# Inputs #
+# Required Inputs #
 To use this, you will need to provide:
 - A black and white image of the desired design
 - The height of the book in inches
